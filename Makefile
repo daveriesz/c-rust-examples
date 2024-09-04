@@ -7,7 +7,7 @@ RPROGRAMS = $(subst .rs,,$(subst rustlang-,rustlang/bin/,$(subst /,-,$(shell fin
 RUSTC     = rustc
 RUSTFLAGS = 
 
-all: $(CPROGRAMS) $(RUSTPROGRAMS)
+all: $(CPROGRAMS) $(RPROGRAMS)
 
 cprogs: $(CPROGRAMS)
 rprogs: $(RPROGRAMS)
