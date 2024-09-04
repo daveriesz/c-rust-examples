@@ -1,58 +1,50 @@
-# Use same shell accross diferent systems
-SHELL=/bin/bash    # Using "/bin/sh" causes different behavior for the commands below
 
-# Compilers
-CC=gcc
-RUSTC=rustc
+CPROGRAMS = $(subst .c,,$(subst C-,C/bin/,$(subst /,-,$(shell find C -name [0-9]*.c))))
+CC        = gcc
+CFLAGS    = -ansi -pedantic -lm
 
-# Compilers flags
-CFLAGS=-ansi -pedantic -lm # Use ANSI C standards
-RUSTFLAGS=
+RPROGRAMS = $(subst .rs,,$(subst rustlang-,rustlang/bin/,$(subst /,-,$(shell find rustlang -name [0-9]*.rs))))
+RUSTC     = rustc
+RUSTFLAGS = 
 
-# Paths
-C_FOLDER_PATH=./C
-C_BIN_PATH=${C_FOLDER_PATH}/bin
-RUST_FOLDER_PATH=./rustlang
-RUST_BIN_PATH=${RUST_FOLDER_PATH}/bin
+all: $(CPROGRAMS) $(RUSTPROGRAMS)
 
-# TMP
-all: c.exe rust.exe
+cprogs: $(CPROGRAMS)
+rprogs: $(RPROGRAMS)
 
-c.exe:
-	@for chapter in {1..8}; do \
-		# loop trough all files with C extension \
-		for file in $$(find ${C_FOLDER_PATH}/$$chapter -maxdepth 1 -name *.c -type f ! -size 0 | sort -V); do \
-			# Strip file path, keeping only exercise number \
-			number=$$(basename $$file .c); \
-			echo "$(CC) $$file $(CFLAGS) -o ${C_BIN_PATH}/$$chapter-$$number"; \
-			# Main compilation command \
-			$(CC) $$file $(CFLAGS) -o ${C_BIN_PATH}/$$chapter-$$number; \
-		done \
-	done
+C/bin/1-%: C/1/%.c
+	$(CC) $< -o $@ $(CFLAGS)
+C/bin/2-%: C/2/%.c
+	$(CC) $< -o $@ $(CFLAGS)
+C/bin/3-%: C/3/%.c
+	$(CC) $< -o $@ $(CFLAGS)
+C/bin/4-%: C/4/%.c
+	$(CC) $< -o $@ $(CFLAGS)
+C/bin/5-%: C/5/%.c
+	$(CC) $< -o $@ $(CFLAGS)
+C/bin/6-%: C/6/%.c
+	$(CC) $< -o $@ $(CFLAGS)
+C/bin/4-11: C/4/11/*
+	$(CC) C/4/11/main.c C/4/11/getop.c C/4/11/stack.c C/4/11/getch.c -o $@ $(CFLAGS)
 
-	# Some examples are special...
-	$(CC) C/4/11/main.c C/4/11/getop.c C/4/11/stack.c C/4/11/getch.c $(CFLAGS) -o ${C_BIN_PATH}/4-11
+rustlang/bin/1-%: rustlang/1/%.rs
+	$(RUSTC) $(RUSTFLAGS) $< -o $@
+rustlang/bin/2-%: rustlang/2/%.rs
+	$(RUSTC) $(RUSTFLAGS) $< -o $@
+rustlang/bin/3-%: rustlang/3/%.rs
+	$(RUSTC) $(RUSTFLAGS) $< -o $@
+rustlang/bin/4-%: rustlang/4/%.rs
+	$(RUSTC) $(RUSTFLAGS) $< -o $@
+rustlang/bin/5-%: rustlang/5/%.rs
+	$(RUSTC) $(RUSTFLAGS) $< -o $@
+rustlang/bin/6-%: rustlang/6/%.rs
+	$(RUSTC) $(RUSTFLAGS) $< -o $@
+rustlang/bin/4-11:
+	$(RUSTC) $(RUSTFLAGS) $< -o $@
 
+clean: c-clean rust-clean
+c-clean:
+	$(RM) $(CPROGRAMS) C/bin/4-11
+rust-clean:
+	$(RM) $(RPROGRAMS)
 
-rust.exe:
-	@for chapter in {1..8}; do \
-		# loop trough all files with Rust extension \
-		for file in $$(find ${RUST_FOLDER_PATH}/$$chapter -maxdepth 1 -name *.rs -type f ! -size 0 | sort -V); do \
-			# Strip file path, keeping only exercise number \
-			number=$$(basename $$file .rs); \
-			echo "$(RUSTC) $$file $(RUSTFLAGS) -o ${RUST_BIN_PATH}/$$chapter-$$number"; \
-			# Main compilation command \
-			$(RUSTC) $$file $(RUSTFLAGS) -o ${RUST_BIN_PATH}/$$chapter-$$number; \
-		done \
-	done
-
-	# Some examples are special...
-	rustc ./rustlang/4/11/main.rs  -o ./rustlang/bin/4-11
-
-# Delete everything
-.PHONY: clean
-
-clean:
-	@echo "Cleaning everything inside ${C_BIN_PATH} and ${RUST_BIN_PATH}"
-	find ${C_BIN_PATH} -type f ! -size 0 -print0 | xargs -0 rm; \
-	find ${RUST_BIN_PATH} -type f ! -size 0 -print0 | xargs -0 rm; \
